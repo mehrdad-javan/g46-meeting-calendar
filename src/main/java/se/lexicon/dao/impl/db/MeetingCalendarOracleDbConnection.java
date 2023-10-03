@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class MeetingCalendarDbConnection {
+public class MeetingCalendarOracleDbConnection {
 
     private static final String DB_NAME = "meeting_calendar_db";
     private static final String JDBC_URL = "jdbc:mysql://localhost:3306/" + DB_NAME;

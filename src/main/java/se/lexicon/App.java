@@ -1,37 +1,27 @@
 package se.lexicon;
 
+import se.lexicon.controller.CalendarController;
+import se.lexicon.dao.MeetingCalendarDao;
 import se.lexicon.dao.UserDao;
+import se.lexicon.dao.impl.MeetingCalendarDaoImpl;
 import se.lexicon.dao.impl.UserDaoImpl;
 import se.lexicon.dao.impl.db.MeetingCalendarDbConnection;
-import se.lexicon.exception.AuthenticationFailedException;
-import se.lexicon.exception.CalendarExceptionHandler;
-import se.lexicon.exception.UserExpiredException;
-import se.lexicon.model.User;
+import se.lexicon.view.CalendarConsoleUI;
+import se.lexicon.view.CalendarView;
 
-import java.util.Optional;
+import java.sql.Connection;
 
-/**
- * Hello world!
- */
 public class App {
+
     public static void main(String[] args) {
+        Connection mysqlConnection = MeetingCalendarDbConnection.getConnection();
+        CalendarView view = new CalendarConsoleUI();
+        UserDao userDao = new UserDaoImpl(mysqlConnection);
+        MeetingCalendarDao calendarDao = new MeetingCalendarDaoImpl(mysqlConnection);
 
-        try {
-            UserDao userDao = new UserDaoImpl(MeetingCalendarDbConnection.getConnection());
-            //User createdUser = userDao.createUser("admin");
-            //System.out.println("createdUser.userInfo() = " + createdUser.userInfo());
-            //Optional<User> userOptional = userDao.findByUsername("admin");
-            //if (userOptional.isPresent()){
-            //    System.out.println(userOptional.get().userInfo());
-            //}
-
-            boolean isAuthenticate = userDao.authenticate(new User("1234", "1234"));
-            System.out.println("You are logged in...");
-        } catch (Exception e) {
-            CalendarExceptionHandler.handelException(e);
-
-        }
-
+        CalendarController controller = new CalendarController(view, userDao, calendarDao);
+        controller.run();
 
     }
+
 }

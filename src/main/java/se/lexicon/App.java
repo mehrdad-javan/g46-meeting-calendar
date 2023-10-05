@@ -14,6 +14,9 @@ import java.sql.Connection;
 public class App {
 
     public static void main(String[] args) {
+
+        System.setProperty("log4j.configurationFile", "log4j2.properties");
+
         Connection mysqlConnection = MeetingCalendarDbConnection.getConnection();
         CalendarView view = new CalendarConsoleUI();
         UserDao userDao = new UserDaoImpl(mysqlConnection);

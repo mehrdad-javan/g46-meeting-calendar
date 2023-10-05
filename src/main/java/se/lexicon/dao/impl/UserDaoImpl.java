@@ -29,8 +29,9 @@ public class UserDaoImpl implements UserDao {
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
         ) {
             User user = new User(username);
+            user.newPassword();
             preparedStatement.setString(1, user.getUsername());
-            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.setString(2, user.getHashedPassword());
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
                 throw new MySQLException("Creating user failed, no rows affected.");
@@ -68,14 +69,13 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public boolean authenticate(User user) throws AuthenticationFailedException, UserExpiredException {
-        String query = "SELECT * FROM USERS WHERE USERNAME = ? and _PASSWORD = ?";
+    public boolean authenticate(User user) throws AuthenticationFailedException, UserExpiredException { //  (admin - 123456)
+        String query = "SELECT * FROM USERS WHERE USERNAME = ?";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
         ) {
 
             preparedStatement.setString(1, user.getUsername());
-            preparedStatement.setString(2, user.getPassword());
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
 
@@ -83,6 +83,9 @@ public class UserDaoImpl implements UserDao {
                 if (isExpired) {
                     throw new UserExpiredException("User is Expired. username: " + user.getUsername());
                 }
+
+                String hashedPassword = resultSet.getString("_PASSWORD");
+                user.checkHash(hashedPassword);
 
             } else {
                 throw new AuthenticationFailedException("Authentication failed. Invalid credentials.");
